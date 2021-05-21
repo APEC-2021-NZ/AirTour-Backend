@@ -82,8 +82,8 @@ type Review {
 
 type Booking {
 	id: ID!
-	touristID: ID!
-	guideID: ID!
+	tourist: User!
+	guide: Guide!
 	startTime: DateTime!
 	endTime: DateTime!
 	description: String!

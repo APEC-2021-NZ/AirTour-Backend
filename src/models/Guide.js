@@ -1,37 +1,42 @@
 import { Model, Field } from 'fireo';
 
 class Guide extends Model {
+    id = Field.ID();
     user = Field.Reference({ required: true });
     active = Field.Boolean({ required: true });
-    image = Field.Reference({ required: true });
+    image = Field.Text({ required: true });
     city = Field.Reference({ required: true });
     blurb = Field.Text({ required: true });
     description = Field.Text({ required: true });
-    rating = Field.Float({ required: true });
-    numReviews = Field.Int({ required: true });
+    rating = Field.Number({ required: true });
+    numReviews = Field.Number({ required: true });
     price = Field.Text({ required: true });
-    languages = Field.Array({ required: true });
-    experiences = Field.Array({ required: true });
-    destinations = Field.Array({ required: true });
-    tags = Field.Array({ required: true });
+    languages = Field.List({ required: true });
+    experiences = Field.List({ required: true });
+    destinations = Field.List({ required: true });
+    tags = Field.List({ required: true });
 }
 
 class Language extends Model {
+    id = Field.ID();
     name = Field.Text({ required: true });
 }
 
 class Experience extends Model {
+    id = Field.ID();
     name = Field.Text({ required: true });
     image = Field.Text({ required: true });
 }
 
 class Destination extends Model {
+    id = Field.ID();
     name = Field.Text({ required: true });
     image = Field.Text({ required: true });
     city = Field.Reference({ required: true });
 }
 
 class Tag extends Model {
+    id = Field.ID();
     name = Field.Text({ required: true });
     image = Field.Text({ required: true });
 }

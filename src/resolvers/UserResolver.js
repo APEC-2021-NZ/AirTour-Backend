@@ -62,11 +62,7 @@ const UserResolver = {
             user.surname = surname ? surname : user.surname;
             user.dob = dob ? dob : user.dob;
             user.guide = user.guide.ref;
-
-            if (image) {
-                // May want to delete the old image as well, but not necessary
-                user.image = await saveImage(image);
-            }
+            user.image = image ? await saveImage(image) : user.image;
 
             await user.upsert();
 
