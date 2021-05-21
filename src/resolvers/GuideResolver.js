@@ -59,7 +59,6 @@ const GuideResolver = {
             if (onWishlist) {
                 // TODO: test me
                 let user = await User.collection.get({ id: context.user.uid });
-                user.wishlist = ['pbaI6SyqyYQuCjwPC2c4uJ79zO73'];
                 if (user.wishlist) {
                     guides = await Promise.all(user.wishlist.map((id) => Guide.collection.get({ id })));
                     return modelsToDtos(guides);
