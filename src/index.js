@@ -20,7 +20,7 @@ admin.initializeApp({
 async function loadData() {
     let country = Country.init();
     country.id = '1';
-    country.name = "New Zealand";
+    country.name = 'New Zealand';
     await country.save();
 
     let city = City.init();
@@ -29,10 +29,21 @@ async function loadData() {
     city.country = country.key;
     await city.save();
 
+    let city2 = City.init();
+    city2.id = '2';
+    city2.name = 'Wellington';
+    city2.country = country.key;
+    await city2.save();
+
     let language = Language.init();
     language.id = '1';
     language.name = 'English';
     await language.save();
+
+    let language2 = Language.init();
+    language2.id = '2';
+    language2.name = 'Not English';
+    await language2.save();
 
     let experience = Experience.init();
     experience.id = '1';
@@ -60,8 +71,8 @@ async function startApolloServer() {
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        mocks: true,
-        mockEntireSchema: false,
+        // mocks: true,
+        // mockEntireSchema: false,
         // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
         uploads: false,
         context: auth()

@@ -1,24 +1,29 @@
+import admin from 'firebase-admin';
 import { saveImage } from '../lib/storage';
 import Guide, { Destination, Experience, Language, Tag } from '../models/Guide';
 import { City } from '../models/Location';
 import User from '../models/User';
 
+const modelToDto = (guide) => ({
+    id: guide.id,
+    active: guide.active,
+    blurb: guide.blurb,
+    description: guide.description,
+    rating: guide.rating,
+    numReviews: guide.numReviews,
+    price: guide.price,
+    city: guide.city,
+    languages: guide.languages,
+    experiences: guide.experiences,
+    destinations: guide.destinations,
+    tags: guide.tags
+});
+
+const modelsToDtos = (guides) => guides.map(modelToDto);
+
 const getGuide = async (id) => {
     let guide = await Guide.collection.get({ id });
-    return {
-        id: guide.id,
-        active: guide.active,
-        blurb: guide.blurb,
-        description: guide.description,
-        rating: guide.rating,
-        numReviews: guide.numReviews,
-        price: guide.price,
-        city: guide.city,
-        languages: guide.languages,
-        experiences: guide.experiences,
-        destinations: guide.destinations,
-        tags: guide.tags
-    };
+    return modelToDto(guide);
 };
 
 const GuideResolver = {
@@ -26,10 +31,42 @@ const GuideResolver = {
         guide: async (parent, { guideID }, context, info) => {
             return getGuide(guideID);
         },
-        guides: async (parent, { experienceID, placeID, tagID, onWishlist }, context, info) => {
+        guides: async (parent, { input }, context, info) => {
             // Anyone can search, but only authenticated users can filter by whether a guide is on their wishlist
+            let { experienceID, placeID, tagID, onWishlist } = input;
+            if (onWishlist && !context.user) return;
 
-            let guides = Guide.collection.fetch();
+            let guides;
+
+            if (experienceID) {
+                let experience = await Experience.collection.get({ id: experienceID });
+                guides = (await Guide.collection.where('experiences', 'array-contains', [experience.key]).fetch()).list;
+                return modelsToDtos(guides);
+            }
+
+            if (placeID) {
+                let place = await Destination.collection.get({ id: placeID });
+                guides = (await Guide.collection.where('destinations', 'array-contains', [place.key]).fetch()).list;
+                return modelsToDtos(guides);
+            }
+
+            if (tagID) {
+                let tag = await Destination.collection.get({ id: tagID });
+                guides = (await Guide.collection.where('tags', 'array-contains', [tag.key]).fetch()).list;
+                return modelsToDtos(guides);
+            }
+
+            if (onWishlist) {
+                // TODO: test me
+                let user = await User.collection.get({ id: context.user.uid });
+                user.wishlist = ['pbaI6SyqyYQuCjwPC2c4uJ79zO73'];
+                if (user.wishlist) {
+                    guides = await Promise.all(user.wishlist.map((id) => Guide.collection.get({ id })));
+                    return modelsToDtos(guides);
+                }
+                return [];
+            }
+            throw Error('Exactly one filtering option must be specified');
         }
     },
     Guide: {
@@ -145,14 +182,17 @@ const GuideResolver = {
                 tagIDs
             } = input;
 
-            let guide = Guide.collection.get({ id: context.user.id });
+            console.log('updateGuide 1');
+            let user = await User.collection.get({ id: context.user.uid });
+            let guide = await Guide.collection.get({ id: context.user.uid });
+            guide.user = user.key;
             guide.active = active ? active : guide.active;
             guide.image = image ? await saveImage(image) : guide.image;
             guide.blurb = blurb ? blurb : guide.blurb;
             guide.description = description ? description : guide.description;
             guide.price = price ? price : guide.price;
 
-            if (city) {
+            if (cityID) {
                 let city = await City.collection.get({ id: cityID });
                 guide.city = city.key;
             }
