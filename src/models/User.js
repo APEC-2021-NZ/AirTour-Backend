@@ -7,6 +7,7 @@ class User extends Model {
     image = Field.Text({ required: true });
     dob = Field.DateTime({ required: true });
     guide = Field.Reference();
+    conversations = Field.List({ required: true, default: [] });
 }
 
 export default User;

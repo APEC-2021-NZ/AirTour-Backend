@@ -15,35 +15,35 @@ admin.initializeApp({
     storageBucket: "gs://apec-2021-nz.appspot.com"
 });
 
-const file = admin.storage().bucket().file('fizz/buzz.png');
-const contents = 'This is the contents of the file.';
+// const file = admin.storage().bucket().file('fizz/buzz.png');
+// const contents = 'This is the contents of the file.';
 
-//-
-// If the callback is omitted, we'll return a Promise.
-//-
-file.save(contents)
+// //-
+// // If the callback is omitted, we'll return a Promise.
+// //-
+// file.save(contents)
 
-// // See: https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware
-// async function startApolloServer() {
-//     const app = express();
-//     const server = new ApolloServer({
-//         typeDefs,
-//         resolvers,
-//         mocks: true,
-//         mockEntireSchema: false,
-//         // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
-//         uploads: false,
-//         context: auth()
-//     });
-//     await server.start();
+// See: https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware
+async function startApolloServer() {
+    const app = express();
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers,
+        mocks: true,
+        mockEntireSchema: false,
+        // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
+        uploads: false,
+        context: auth()
+    });
+    await server.start();
 
-//     app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+    app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
 
-//     server.applyMiddleware({ app });
+    server.applyMiddleware({ app });
 
-//     await new Promise((resolve) => app.listen({ port: PORT }, resolve));
-//     console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
-//     return { server, app };
-// }
+    await new Promise((resolve) => app.listen({ port: PORT }, resolve));
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    return { server, app };
+}
 
-// startApolloServer();
+startApolloServer();

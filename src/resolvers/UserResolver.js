@@ -1,32 +1,43 @@
+import { saveImage } from '../lib/storage';
 import User from '../models/User';
-import admin from 'firebase-admin';
+
+const getUser = async (id) => {
+    let user = await User.collection.get({ id });
+    return {
+        id: user.id,
+        firstname: user.firstname,
+        surname: user.surname,
+        image: {
+            uri: user.image
+        },
+        dob: user.dob,
+        guide: user.guide,
+        conversations: user.conversations
+    };
+};
 
 const UserResolver = {
-
-    Guide: async (parent, args, context, info) => {
-        await Guide.collection.get({id: parent.id})
-    },
-
     Query: {
         me: async (parent, args, context, info) => {
             if (!context.user) return;
-            let a = await User.collection.get({ id: context.user.uid });
-            // console.log(a)
-            // console.log(a.list[0])
-            // console.log(a.list[0].dob)
-            console.log(a);
-            // return a.list[1];
-            return {
-                id: a.id,
-                firstname: 'test',
-                surname: 'test',
-                image: 'test',
-                dob: new Date()
-            };
+            return await getUser(context.user.uid);
+        }
+    },
+    User: {
+        guide: async (parent) => {
+            // TODO: Test this
+            let guide = parent.guide && parent.guide.ref ? await parent.guide.get() : null;
+            return guide;
+        },
+        conversations: async (parent) => {
+            // TODO: Test this
+            let conversations = parent.conversations ? await Promise.all(parent.conversations.map((c) => c.get())) : [];
+            return conversations;
         }
     },
     Mutation: {
         createUser: async (parent, { input }, context, info) => {
+            // Should probably check to see if the user already exists
             if (!context.user) return;
             let { firstname, surname, image, dob } = input;
 
@@ -34,15 +45,32 @@ const UserResolver = {
             user.id = context.user.uid;
             user.firstname = firstname;
             user.surname = surname;
-            // user.image = image.url;
+            user.image = await saveImage(image);
             user.dob = dob;
-            console.log(user);
+
             await user.save();
-            console.log(user);
-            return user;
+
+            return await getUser(context.user.uid);
         },
         updateUser: async (parent, { input }, context, info) => {
-            // TODO
+            if (!context.user) return;
+
+            let { firstname, surname, image, dob } = input;
+
+            let user = await User.collection.get({ id: context.user.uid });
+            user.firstname = firstname ? firstname : user.firstname;
+            user.surname = surname ? surname : user.surname;
+            user.dob = dob ? dob : user.dob;
+            user.guide = user.guide.ref;
+
+            if (image) {
+                // May want to delete the old image as well, but not necessary
+                user.image = await saveImage(image);
+            }
+
+            await user.upsert();
+
+            return await getUser(context.user.uid);
         }
     }
 };

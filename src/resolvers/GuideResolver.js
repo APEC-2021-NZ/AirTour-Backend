@@ -1,6 +1,3 @@
-import User from '../models/User';
-import admin from 'firebase-admin';
-
 const GuideResolver = {
     Query: {
         guide: async (parent, args, context, info) => {
@@ -12,7 +9,7 @@ const GuideResolver = {
     },
     Mutation: {
         createGuide: async (parent, { input }, context, info) => {
-            // TODO
+            if (!context.user) return;
         },
         updateGuide: async (parent, { input }, context, info) => {
             // TODO
