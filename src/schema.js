@@ -2,16 +2,11 @@ import { GraphQLScalarType, Kind } from 'graphql';
 import { GraphQLFileLoader, loadTypedefsSync, mergeResolvers } from 'graphql-tools';
 import path from 'path';
 import { GraphQLUpload } from 'graphql-upload';
-import UserResolver from './resolvers/UserResolver';
-import GuideResolver from './resolvers/GuideResolver';
-import BookingResolver from './resolvers/BookingResolver';
-import ConversationResolver from './resolvers/ConversationResolver';
-import DestinationResolver from './resolvers/DestinationResolver';
-import ExperienceResolver from './resolvers/ExperienceResolver';
-import MessageResolver from './resolvers/messageResolver';
-import ReviewResolver from './resolvers/reviewResolver';
-import TagResolver from './resolvers/TagResolver';
-import WishlistResolver from './resolvers/WishlistResolver';
+import { 
+    BookingResolver, ConversationResolver, DestinationResolver, 
+    ExperienceResolver, GuideResolver, MessageResolver, 
+    ReviewResolver, TagResolver, UserResolver, WishlistResolver 
+} from './resolvers'
 
 export const typeDefs = loadTypedefsSync(path.join(__dirname, 'schema.gql'), {
     loaders: [new GraphQLFileLoader()]
@@ -67,7 +62,7 @@ const customScalars = {
     Upload: GraphQLUpload
 };
 
-export const resolvers = mergeResolvers([customScalars, 
+export const resolvers = mergeResolvers([customScalars,
     BookingResolver,
     ConversationResolver,
     DestinationResolver,
