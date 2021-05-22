@@ -22,7 +22,7 @@ const modelToDto = (guide) => ({
 
 const modelsToDtos = (guides) => guides.map(modelToDto);
 
-const getGuide = async (id) => {
+export const getGuide = async (id) => {
     let guide = await Guide.collection.get({ id });
     return modelToDto(guide);
 };

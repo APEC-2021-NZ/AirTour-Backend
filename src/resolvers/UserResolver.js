@@ -1,7 +1,7 @@
 import { saveImage } from '../lib/storage';
 import User from '../models/User';
 
-const getUser = async (id) => {
+export const getUser = async (id) => {
     let user = await User.collection.get({ id });
     return {
         id: user.id,
@@ -60,7 +60,7 @@ const UserResolver = {
             let user = await User.collection.get({ id: context.user.uid });
             user.firstname = firstname ? firstname : user.firstname;
             user.surname = surname ? surname : user.surname;
-            user.dob = dob ? dob : user.dob;
+            user.dob = dob ? dob : user.dob.toDate();
             user.guide = user.guide.ref;
             user.image = image ? await saveImage(image) : user.image;
 
