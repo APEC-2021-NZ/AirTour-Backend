@@ -22,7 +22,7 @@ const modelToDto = (guide) => ({
     destinationKeys: guide.destinations,
     tagKeys: guide.tags,
     image: guide.image,
-    userID: guide.user.ref.id
+    userID: guide.user.ref.id,
 });
 
 const modelsToDtos = (guides) => guides.map(modelToDto);
@@ -37,7 +37,7 @@ export const getCity = async (id) => {
     return {
         id,
         name: city.name,
-        countryID: city.country.ref.id
+        countryID: city.country.ref.id,
     };
 };
 
@@ -45,7 +45,7 @@ export const getCountry = async (id) => {
     let country = await Country.collection.get({ id });
     return {
         id,
-        name: country.name
+        name: country.name,
     };
 };
 
@@ -60,7 +60,7 @@ export const getReviews = async (guideKey, offset, limit) => {
         touristID: review.tourist.ref.id,
         rating: review.rating,
         description: review.description,
-        created: review.created
+        created: review.created,
     }));
 };
 
@@ -77,22 +77,39 @@ const GuideResolver = {
             let guides;
 
             if (experienceID) {
-                let experience = await Experience.collection.get({ id: experienceID });
-                guides = (await Guide.collection.where('experiences', 'array-contains-any', [experience.key]).fetch())
-                    .list;
+                let experience = await Experience.collection.get({
+                    id: experienceID,
+                });
+                guides = (
+                    await Guide.collection
+                        .where('experiences', 'array-contains-any', [
+                            experience.key,
+                        ])
+                        .fetch()
+                ).list;
                 return modelsToDtos(guides);
             }
 
             if (placeID) {
                 let place = await Destination.collection.get({ id: placeID });
-                guides = (await Guide.collection.where('destinations', 'array-contains-any', [place.key]).fetch()).list;
+                guides = (
+                    await Guide.collection
+                        .where('destinations', 'array-contains-any', [
+                            place.key,
+                        ])
+                        .fetch()
+                ).list;
                 return modelsToDtos(guides);
             }
 
             if (tagID) {
                 let tag = await Tag.collection.get({ id: tagID });
                 console.log(tag);
-                guides = (await Guide.collection.where('tags', 'array-contains-any', [tag.key]).fetch()).list;
+                guides = (
+                    await Guide.collection
+                        .where('tags', 'array-contains-any', [tag.key])
+                        .fetch()
+                ).list;
                 return modelsToDtos(guides);
             }
 
@@ -100,56 +117,70 @@ const GuideResolver = {
                 // TODO: test me
                 let user = await User.collection.get({ id: context.user.uid });
                 if (user.wishlist) {
-                    guides = await Promise.all(user.wishlist.map((id) => Guide.collection.get({ id })));
+                    guides = await Promise.all(
+                        user.wishlist.map((id) => Guide.collection.get({ id })),
+                    );
                     return modelsToDtos(guides);
                 }
                 return [];
             }
             throw Error('Exactly one filtering option must be specified');
-        }
+        },
     },
     Guide: {
         image: async (parent) => {
             return {
-                uri: parent.image
+                uri: parent.image,
             };
         },
         city: async (parent) => {
             return await getCity(parent.cityID);
         },
         languages: async (parent) => {
-            return await Promise.all(parent.languageKeys.map((key) => Language.collection.get({ key })));
+            return await Promise.all(
+                parent.languageKeys.map((key) =>
+                    Language.collection.get({ key }),
+                ),
+            );
         },
         experiences: async (parent) => {
-            let experiences = await Promise.all(parent.experienceKeys.map((key) => Experience.collection.get({ key })));
+            let experiences = await Promise.all(
+                parent.experienceKeys.map((key) =>
+                    Experience.collection.get({ key }),
+                ),
+            );
             return experiences.map((exp) => ({
                 id: exp.id,
                 name: exp.name,
                 image: {
-                    uri: exp.image
-                }
+                    uri: exp.image,
+                },
             }));
         },
         destinations: async (parent) => {
             let destinations = await Promise.all(
-                parent.destinationKeys.map((key) => Destination.collection.get({ key }))
+                parent.destinationKeys.map((key) =>
+                    Destination.collection.get({ key }),
+                ),
             );
             return destinations.map((dest) => ({
                 id: dest.id,
                 name: dest.name,
                 image: {
-                    uri: dest.image
-                }
+                    uri: dest.image,
+                },
             }));
         },
         tags: async (parent) => {
-            let tags = await Promise.all(parent.tagKeys.map((key) => Tag.collection.get({ key })));
+            let tags = await Promise.all(
+                parent.tagKeys.map((key) => Tag.collection.get({ key })),
+            );
             return tags.map((tag) => ({
                 id: tag.id,
                 name: tag.name,
                 image: {
-                    uri: tag.image
-                }
+                    uri: tag.image,
+                },
             }));
         },
         reviews: async (parent, { limit = 10, offset = 0 }) => {
@@ -157,12 +188,12 @@ const GuideResolver = {
         },
         user: async (parent) => {
             return await getUser(parent.userID);
-        }
+        },
     },
     City: {
         country: async (parent) => {
             return await getCountry(parent.countryID);
-        }
+        },
     },
     Mutation: {
         createGuide: async (parent, { input }, context, info) => {
@@ -178,14 +209,22 @@ const GuideResolver = {
                 languageIDs,
                 experienceIDs,
                 destinationIDs,
-                tagIDs
+                tagIDs,
             } = input;
 
             let city = await City.collection.get({ id: cityID });
-            let languages = await Promise.all(languageIDs.map((id) => Language.collection.get({ id })));
-            let experiences = await Promise.all(experienceIDs.map((id) => Experience.collection.get({ id })));
-            let destinations = await Promise.all(destinationIDs.map((id) => Destination.collection.get({ id })));
-            let tags = await Promise.all(tagIDs.map((id) => Tag.collection.get({ id })));
+            let languages = await Promise.all(
+                languageIDs.map((id) => Language.collection.get({ id })),
+            );
+            let experiences = await Promise.all(
+                experienceIDs.map((id) => Experience.collection.get({ id })),
+            );
+            let destinations = await Promise.all(
+                destinationIDs.map((id) => Destination.collection.get({ id })),
+            );
+            let tags = await Promise.all(
+                tagIDs.map((id) => Tag.collection.get({ id })),
+            );
 
             let languageKeys = languages.map((lang) => lang.key);
             let experienceKeys = experiences.map((exp) => exp.key);
@@ -226,7 +265,7 @@ const GuideResolver = {
                 languageIDs,
                 experienceIDs,
                 destinationIDs,
-                tagIDs
+                tagIDs,
             } = input;
 
             let user = await User.collection.get({ id: context.user.uid });
@@ -244,25 +283,37 @@ const GuideResolver = {
             }
 
             if (languageIDs) {
-                let languages = await Promise.all(languageIDs.map((id) => Language.collection.get({ id })));
+                let languages = await Promise.all(
+                    languageIDs.map((id) => Language.collection.get({ id })),
+                );
                 let languageKeys = languages.map((lang) => lang.key);
                 guide.languages = languageKeys;
             }
 
             if (experienceIDs) {
-                let experiences = await Promise.all(experienceIDs.map((id) => Experience.collection.get({ id })));
+                let experiences = await Promise.all(
+                    experienceIDs.map((id) =>
+                        Experience.collection.get({ id }),
+                    ),
+                );
                 let experienceKeys = experiences.map((exp) => exp.key);
                 guide.experiences = experienceKeys;
             }
 
             if (destinationIDs) {
-                let destinations = await Promise.all(destinationIDs.map((id) => Destination.collection.get({ id })));
+                let destinations = await Promise.all(
+                    destinationIDs.map((id) =>
+                        Destination.collection.get({ id }),
+                    ),
+                );
                 let destinationKeys = destinations.map((dest) => dest.key);
                 guide.destinations = destinationKeys;
             }
 
             if (tagIDs) {
-                let tags = await Promise.all(tagIDs.map((id) => Tag.collection.get({ id })));
+                let tags = await Promise.all(
+                    tagIDs.map((id) => Tag.collection.get({ id })),
+                );
                 let tagKeys = tags.map((tag) => tag.key);
                 guide.tags = tagKeys;
             }
@@ -270,8 +321,8 @@ const GuideResolver = {
             await guide.upsert();
 
             return await getGuide(guide.id);
-        }
-    }
+        },
+    },
 };
 
 export default GuideResolver;

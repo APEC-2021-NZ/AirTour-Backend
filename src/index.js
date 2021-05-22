@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 4000;
 
 admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    storageBucket: 'gs://apec-2021-nz.appspot.com'
+    storageBucket: 'gs://apec-2021-nz.appspot.com',
 });
 
 async function loadData() {
@@ -95,7 +95,7 @@ async function startApolloServer() {
         // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
         uploads: false,
         debug: (process.env.DEBUG || '').toLowerCase() === 'true',
-        context: auth()
+        context: auth(),
     });
     await server.start();
 
@@ -104,7 +104,9 @@ async function startApolloServer() {
     server.applyMiddleware({ app });
 
     await new Promise((resolve) => app.listen({ port: PORT }, resolve));
-    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(
+        `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`,
+    );
     return { server, app };
 }
 
