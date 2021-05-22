@@ -95,7 +95,8 @@ type Booking {
 
 type Conversation {
 	id: ID!
-	users: [User!]!
+	user: User!
+	guide: Guide!
 	messages(limit: Int!, offset: Int!): [Message!]!
 	created: DateTime!
 }
@@ -165,7 +166,7 @@ input CreateConversationInput {
 	guideID: ID!
 	startDate: Date!
 	endDate: Date!
-	numTourist: Int!
+	numTourists: Int!
 	content: String!
 }
 

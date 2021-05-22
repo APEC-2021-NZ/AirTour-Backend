@@ -1,5 +1,9 @@
+import { AuthenticationError } from 'apollo-server-errors';
 import { saveImage } from '../lib/storage';
+import { Conversation } from '../models/Conversation';
 import User from '../models/User';
+import { getConversation } from './ConversationResolver';
+import { getGuide } from './GuideResolver';
 
 export const getUser = async (id) => {
     let user = await User.collection.get({ id });
@@ -7,12 +11,10 @@ export const getUser = async (id) => {
         id: user.id,
         firstname: user.firstname,
         surname: user.surname,
-        image: {
-            uri: user.image
-        },
+        image: user.image,
         dob: user.dob,
-        guide: user.guide,
-        conversations: user.conversations
+        guideID: user.guide && user.guide.ref ? user.guide.ref.id : null,
+        conversationIDs: user.conversations
     };
 };
 
@@ -24,14 +26,16 @@ const UserResolver = {
         }
     },
     User: {
+        image: async (parent) => {
+            return {
+                uri: parent.image
+            };
+        },
         guide: async (parent) => {
-            // TODO: Test this
-            let guide = parent.guide && parent.guide.ref ? await parent.guide.get() : null;
-            return guide;
+            return await getGuide(parent.guideID);
         },
         conversations: async (parent) => {
-            // TODO: Test this
-            let conversations = parent.conversations ? await Promise.all(parent.conversations.map((c) => c.get())) : [];
+            let conversations = await Promise.all(parent.conversationIDs.map((id) => getConversation(id)));
             return conversations;
         }
     },

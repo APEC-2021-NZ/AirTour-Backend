@@ -10,7 +10,7 @@ import { Destination, Experience, Language, Tag } from './models/Guide';
 
 dotenv.config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 
 admin.initializeApp({
     credential: admin.credential.applicationDefault(),
@@ -94,7 +94,7 @@ async function startApolloServer() {
         // mockEntireSchema: false,
         // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
         uploads: false,
-        debug: process.env.DEBUG.toLowerCase() === 'true',
+        debug: (process.env.DEBUG || '').toLowerCase() === 'true',
         context: auth()
     });
     await server.start();

@@ -2,9 +2,10 @@ import { AuthenticationError } from 'apollo-server-errors';
 import admin from 'firebase-admin';
 import { saveImage } from '../lib/storage';
 import Guide, { Destination, Experience, Language, Tag } from '../models/Guide';
-import { City } from '../models/Location';
+import { City, Country } from '../models/Location';
 import Review from '../models/Review';
 import User from '../models/User';
+import { getUser } from './UserResolver';
 
 const modelToDto = (guide) => ({
     key: guide.key,
@@ -15,12 +16,13 @@ const modelToDto = (guide) => ({
     rating: guide.rating,
     numReviews: guide.numReviews,
     price: guide.price,
-    city: guide.city,
-    languages: guide.languages,
-    experiences: guide.experiences,
-    destinations: guide.destinations,
-    tags: guide.tags,
-    image: guide.image
+    cityID: guide.city.ref.id,
+    languageKeys: guide.languages,
+    experienceKeys: guide.experiences,
+    destinationKeys: guide.destinations,
+    tagKeys: guide.tags,
+    image: guide.image,
+    userID: guide.user.ref.id
 });
 
 const modelsToDtos = (guides) => guides.map(modelToDto);
@@ -28,6 +30,38 @@ const modelsToDtos = (guides) => guides.map(modelToDto);
 export const getGuide = async (id) => {
     let guide = await Guide.collection.get({ id });
     return modelToDto(guide);
+};
+
+export const getCity = async (id) => {
+    let city = await City.collection.get({ id });
+    return {
+        id,
+        name: city.name,
+        countryID: city.country.ref.id
+    };
+};
+
+export const getCountry = async (id) => {
+    let country = await Country.collection.get({ id });
+    return {
+        id,
+        name: country.name
+    };
+};
+
+export const getReviews = async (guideKey, offset, limit) => {
+    let reviews = await Review.collection
+        .parent(guideKey)
+        .orderBy('-created')
+        .fetch(offset + limit);
+    return reviews.list.slice(offset).map((review) => ({
+        id: review.id,
+        guideID: review.guide.ref.id,
+        touristID: review.tourist.ref.id,
+        rating: review.rating,
+        description: review.description,
+        created: review.created
+    }));
 };
 
 const GuideResolver = {
@@ -81,13 +115,13 @@ const GuideResolver = {
             };
         },
         city: async (parent) => {
-            return await parent.city.get();
+            return await getCity(parent.cityID);
         },
         languages: async (parent) => {
-            return await Promise.all(parent.languages.map((key) => Language.collection.get({ key })));
+            return await Promise.all(parent.languageKeys.map((key) => Language.collection.get({ key })));
         },
         experiences: async (parent) => {
-            let experiences = await Promise.all(parent.experiences.map((key) => Experience.collection.get({ key })));
+            let experiences = await Promise.all(parent.experienceKeys.map((key) => Experience.collection.get({ key })));
             return experiences.map((exp) => ({
                 id: exp.id,
                 name: exp.name,
@@ -97,7 +131,9 @@ const GuideResolver = {
             }));
         },
         destinations: async (parent) => {
-            let destinations = await Promise.all(parent.destinations.map((key) => Destination.collection.get({ key })));
+            let destinations = await Promise.all(
+                parent.destinationKeys.map((key) => Destination.collection.get({ key }))
+            );
             return destinations.map((dest) => ({
                 id: dest.id,
                 name: dest.name,
@@ -107,7 +143,7 @@ const GuideResolver = {
             }));
         },
         tags: async (parent) => {
-            let tags = await Promise.all(parent.tags.map((key) => Tag.collection.get({ key })));
+            let tags = await Promise.all(parent.tagKeys.map((key) => Tag.collection.get({ key })));
             return tags.map((tag) => ({
                 id: tag.id,
                 name: tag.name,
@@ -117,23 +153,15 @@ const GuideResolver = {
             }));
         },
         reviews: async (parent, { limit = 10, offset = 0 }) => {
-            console.log(parent);
-            let reviews = await Review.collection
-                .parent(parent.key)
-                .orderBy('-created')
-                .fetch(offset + limit);
-            console.log(reviews);
-            return reviews.list.slice(offset);
+            return await getReviews(parent.key, offset, limit);
+        },
+        user: async (parent) => {
+            return await getUser(parent.userID);
         }
     },
     City: {
         country: async (parent) => {
-            let ref = await parent.country.get();
-            let data = await ref.data();
-            return {
-                id: ref.id,
-                name: data.name
-            };
+            return await getCountry(parent.countryID);
         }
     },
     Mutation: {
@@ -201,7 +229,6 @@ const GuideResolver = {
                 tagIDs
             } = input;
 
-            console.log('updateGuide 1');
             let user = await User.collection.get({ id: context.user.uid });
             let guide = await Guide.collection.get({ id: context.user.uid });
             guide.user = user.key;

@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "apollo-server-express": "^2.24.1",
+    "dateformat": "^4.5.1",
     "dotenv": "^9.0.2",
     "esm": "^3.2.25",
     "firebase-admin": "^9.8.0",

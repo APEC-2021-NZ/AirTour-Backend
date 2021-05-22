@@ -19,7 +19,6 @@ const WishlistResolver = {
 
             user.dob = user.dob.toDate();
             user.guide = user.guide.ref;
-            console.log(user);
 
             await user.upsert();
 

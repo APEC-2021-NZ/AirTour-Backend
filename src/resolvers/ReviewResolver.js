@@ -5,13 +5,15 @@ import Guide from '../models/Guide';
 import Review from '../models/Review';
 import { Fireo } from 'fireo';
 import { DoubleReviewError, NoBookingReviewError } from '../errors/ReviewError';
+import { getGuide } from './GuideResolver';
+import { getUser } from './UserResolver';
 
 const getReview = async ({ reviewId, guideId }) => {
     let review = await Review.collection.parent(guideId).get({ id: reviewId });
     return {
         id: review.id,
-        guide: review.guide,
-        tourist: review.tourist,
+        guideID: review.guide.ref.id,
+        touristID: review.tourist.ref.id,
         rating: review.rating,
         description: review.description,
         created: review.created
@@ -21,7 +23,10 @@ const getReview = async ({ reviewId, guideId }) => {
 const ReviewResolver = {
     Review: {
         guide: async (parent) => {
-            return await parent.guide.get();
+            return await getGuide(parent.guideID);
+        },
+        tourist: async (parent) => {
+            return await getUser(parent.touristID);
         }
     },
     Mutation: {

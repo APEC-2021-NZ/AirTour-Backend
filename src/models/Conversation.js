@@ -1,7 +1,8 @@
 import { Model, Field } from 'fireo';
 
 class Conversation extends Model {
-    users = Field.Array({ required: true });
+    user = Field.Reference({ required: true });
+    guide = Field.Reference({ required: true });
     created = Field.DateTime({ required: true });
     // messages is a sub collection
 }
@@ -13,4 +14,4 @@ class Message extends Model {
     created = Field.DateTime({ required: true });
 }
 
-export {Conversation, Message};
+export { Conversation, Message };
