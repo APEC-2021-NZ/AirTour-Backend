@@ -5,231 +5,230 @@ scalar DateTime
 scalar Upload
 
 type User {
-	id: ID!
-	firstname: String!
-	surname: String!
-	image: Image!
-	dob: Date!
-	guide: Guide
-	conversations: [Conversation!]!
+    id: ID!
+    firstname: String!
+    surname: String!
+    image: Image!
+    dob: Date!
+    guide: Guide
+    conversations: [Conversation!]!
 }
 
 type Guide {
-	id: ID!
-	user: User!
-	active: Boolean!
-	image: Image!
-	city: City!
-	blurb: String!
-	description: String!
-	rating: Float!
-	numReviews: Int!
-	reviews(limit: Int, offset: Int): [Review!]!
-	price: String!
-	languages: [Language!]!
-	experiences: [Experience!]!
-	destinations: [Destination!]!
-	tags: [Tag!]!
+    id: ID!
+    user: User!
+    active: Boolean!
+    image: Image!
+    city: City!
+    blurb: String!
+    description: String!
+    rating: Float!
+    numReviews: Int!
+    reviews(limit: Int, offset: Int): [Review!]!
+    price: String!
+    languages: [Language!]!
+    experiences: [Experience!]!
+    destinations: [Destination!]!
+    tags: [Tag!]!
 }
 
 type Language {
-	id: ID!
-	name: String!
+    id: ID!
+    name: String!
 }
 
 type Experience {
-	id: ID!
-	name: String!
-	image: Image!
+    id: ID!
+    name: String!
+    image: Image!
 }
 
 type Destination {
-	id: ID!
-	name: String!
-	image: Image!
-	city: City!
+    id: ID!
+    name: String!
+    image: Image!
+    city: City!
 }
 
 type Tag {
-	id: ID!
-	name: String!
-	image: Image!
+    id: ID!
+    name: String!
+    image: Image!
 }
 
 type Image {
-	uri: String!
+    uri: String!
 }
 
 type City {
-	id: ID!
-	name: String!
-	country: Country!
+    id: ID!
+    name: String!
+    country: Country!
 }
 
 type Country {
-	id: ID!
-	name: String!
+    id: ID!
+    name: String!
 }
 
 type Review {
-	id: ID!
-	guide: Guide!
-	tourist: User!
-	rating: Int!
-	description: String!
-	created: DateTime!
+    id: ID!
+    guide: Guide!
+    tourist: User!
+    rating: Int!
+    description: String!
+    created: DateTime!
 }
 
 type Booking {
-	id: ID!
-	tourist: User!
-	guide: Guide!
-	startTime: DateTime!
-	endTime: DateTime!
-	description: String!
-	confirmedTourist: Boolean!
-	confirmedGuide: Boolean!
-	price: String!
-	created: DateTime!
+    id: ID!
+    tourist: User!
+    guide: Guide!
+    startTime: DateTime!
+    endTime: DateTime!
+    description: String!
+    confirmedTourist: Boolean!
+    confirmedGuide: Boolean!
+    price: String!
+    created: DateTime!
 }
 
 type Conversation {
-	id: ID!
-	user: User!
-	guide: Guide!
-	messages(limit: Int!, offset: Int!): [Message!]!
-	created: DateTime!
+    id: ID!
+    user: User!
+    guide: Guide!
+    messages(limit: Int!, offset: Int!): [Message!]!
+    created: DateTime!
 }
 
 type Message {
-	id: ID!
-	from: User!
-	content: String!
-	booking: Booking
-	created: DateTime!
+    id: ID!
+    from: User!
+    content: String!
+    booking: Booking
+    created: DateTime!
 }
 
 input GuidesInput {
-	experienceID: ID
-	placeID: ID
-	tagID: ID
-	onWishlist: Boolean
+    experienceID: ID
+    placeID: ID
+    tagID: ID
+    onWishlist: Boolean
 }
 
 input CreateUserInput {
-	firstname: String!
-	surname: String!
-	image: Upload
-	dob: Date!
+    firstname: String!
+    surname: String!
+    image: Upload
+    dob: Date!
 }
 
 input UpdateUserInput {
-	firstname: String
-	surname: String
-	image: Upload
-	dob: Date
+    firstname: String
+    surname: String
+    image: Upload
+    dob: Date
 }
 
 input CreateBookingInput {
-	touristID: ID!
-	guideID: ID!
-	startTime: DateTime!
-	endTime: DateTime!
-	description: String!
-	confirmedTourist: Boolean!
-	confirmedGuide: Boolean!
-	price: String!
-	created: DateTime!
+    touristID: ID!
+    guideID: ID!
+    startTime: DateTime!
+    endTime: DateTime!
+    description: String!
+    confirmedTourist: Boolean!
+    confirmedGuide: Boolean!
+    price: String!
 }
 
 input UpdateBookingInput {
-	startTime: DateTime
-	endTime: DateTime
-	description: String
-	confirmedTourist: Boolean
-	confirmedGuide: Boolean
-	price: String
+    startTime: DateTime
+    endTime: DateTime
+    description: String
+    confirmedTourist: Boolean
+    confirmedGuide: Boolean
+    price: String
 }
 
 input MessageInput {
-	conversationID: ID!
-	content: String!
+    conversationID: ID!
+    content: String!
 }
 
 input ReviewInput {
-	guideID: ID!
-	rating: Int!
-	description: String!
+    guideID: ID!
+    rating: Int!
+    description: String!
 }
 
 input CreateConversationInput {
-	guideID: ID!
-	startDate: Date!
-	endDate: Date!
-	numTourists: Int!
-	content: String!
+    guideID: ID!
+    startDate: Date!
+    endDate: Date!
+    numTourists: Int!
+    content: String!
 }
 
 input CreateGuideInput {
-	active: Boolean!
-	image: Upload!
-	cityID: ID!
-	blurb: String!
-	description: String!
-	price: String!
-	languageIDs: [ID!]!
-	experienceIDs: [ID!]!
-	destinationIDs: [ID!]!
-	tagIDs: [ID!]!
+    active: Boolean!
+    image: Upload!
+    cityID: ID!
+    blurb: String!
+    description: String!
+    price: String!
+    languageIDs: [ID!]!
+    experienceIDs: [ID!]!
+    destinationIDs: [ID!]!
+    tagIDs: [ID!]!
 }
 
 input UpdateGuideInput {
-	active: Boolean
-	image: Upload
-	cityID: ID
-	blurb: String
-	description: String
-	price: String
-	languageIDs: [ID!]
-	experienceIDs: [ID!]
-	destinationIDs: [ID!]
-	tagIDs: [ID!]
+    active: Boolean
+    image: Upload
+    cityID: ID
+    blurb: String
+    description: String
+    price: String
+    languageIDs: [ID!]
+    experienceIDs: [ID!]
+    destinationIDs: [ID!]
+    tagIDs: [ID!]
 }
 
 type Mutation {
-	createBooking(input: CreateBookingInput!): Booking!
-	updateBooking(input: UpdateBookingInput!): Booking!
-	booking(accept: Boolean!): Booking!
+    createBooking(input: CreateBookingInput!): Booking!
+    updateBooking(input: UpdateBookingInput!): Booking!
+    booking(accept: Boolean!): Booking!
 
     createUser(input: CreateUserInput!): User!
-	updateUser(input: UpdateUserInput!): User!
+    updateUser(input: UpdateUserInput!): User!
 
-	addToWishlist(guideID: ID!): Guide!
+    addToWishlist(guideID: ID!): Guide!
 
-	message(input: MessageInput!): Message!
+    message(input: MessageInput!): Message!
 
-	createConversation(input: CreateConversationInput!): Conversation!
-	
-	review(input: ReviewInput!): Review! 
+    createConversation(input: CreateConversationInput!): Conversation!
 
-	createGuide(input: CreateGuideInput!): Guide!
-	updateGuide(input: UpdateGuideInput!): Guide!
+    review(input: ReviewInput!): Review!
+
+    createGuide(input: CreateGuideInput!): Guide!
+    updateGuide(input: UpdateGuideInput!): Guide!
 }
 
 type Query {
-	me: User!
+    me: User!
 
-	guide(guideID: ID!): Guide!
-	guides(input: GuidesInput): [Guide!]!
+    guide(guideID: ID!): Guide!
+    guides(input: GuidesInput): [Guide!]!
 
-	searchDestinations(input: String): [Destination!]!
+    searchDestinations(input: String): [Destination!]!
 
-	booking(bookingID: ID!): Booking!
-	bookings: [Booking!]!
+    booking(bookingID: ID!): Booking!
+    bookings: [Booking!]!
 
-	conversation(conversationID: ID!): Conversation!
+    conversation(conversationID: ID!): Conversation!
 
-	tags: [Tag!]!
-	destinations: [Destination!]!
-	experiences: [Experience!]!
+    tags: [Tag!]!
+    destinations: [Destination!]!
+    experiences: [Experience!]!
 }

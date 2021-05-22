@@ -8,6 +8,7 @@ import { getGuide } from './GuideResolver'
 export const getUser = async (id) => {
     let user = await User.collection.get({ id })
     return {
+        key: user.key,
         id: user.id,
         firstname: user.firstname,
         surname: user.surname,

@@ -5,6 +5,9 @@ import Guide, { Destination, Experience, Language, Tag } from '../models/Guide'
 import { City, Country } from '../models/Location'
 import Review from '../models/Review'
 import User from '../models/User'
+import { modelsToDestinations } from './DestinationResolver'
+import { modelsToExperiences } from './ExperienceResolver'
+import { modelsToTags } from './TagResolver'
 import { getUser } from './UserResolver'
 
 const modelToDto = (guide) => ({
@@ -149,13 +152,7 @@ const GuideResolver = {
                     Experience.collection.get({ key }),
                 ),
             )
-            return experiences.map((exp) => ({
-                id: exp.id,
-                name: exp.name,
-                image: {
-                    uri: exp.image,
-                },
-            }))
+            return modelsToExperiences(experiences)
         },
         destinations: async (parent) => {
             let destinations = await Promise.all(
@@ -163,25 +160,13 @@ const GuideResolver = {
                     Destination.collection.get({ key }),
                 ),
             )
-            return destinations.map((dest) => ({
-                id: dest.id,
-                name: dest.name,
-                image: {
-                    uri: dest.image,
-                },
-            }))
+            return modelsToDestinations(destinations)
         },
         tags: async (parent) => {
             let tags = await Promise.all(
                 parent.tagKeys.map((key) => Tag.collection.get({ key })),
             )
-            return tags.map((tag) => ({
-                id: tag.id,
-                name: tag.name,
-                image: {
-                    uri: tag.image,
-                },
-            }))
+            return modelsToTags(tags)
         },
         reviews: async (parent, { limit = 10, offset = 0 }) => {
             return await getReviews(parent.key, offset, limit)

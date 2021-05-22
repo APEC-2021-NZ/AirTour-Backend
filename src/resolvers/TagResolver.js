@@ -20,4 +20,5 @@ const TagResolver = {
     },
 }
 
+export { modelToTag, modelsToTags }
 export default TagResolver

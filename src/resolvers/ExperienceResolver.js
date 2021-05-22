@@ -20,4 +20,5 @@ const ExperienceResolver = {
     },
 }
 
+export { modelToExperience, modelsToExperiences }
 export default ExperienceResolver
