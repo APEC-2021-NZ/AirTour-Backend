@@ -1,43 +1,49 @@
-import User from '../models/User';
-import Booking from '../models/Booking';
-import { AuthenticationError, UserInputError } from 'apollo-server-errors';
-import Guide from '../models/Guide';
-import Review from '../models/Review';
-import { Fireo } from 'fireo';
-import { DoubleReviewError, NoBookingReviewError } from '../errors/ReviewError';
-import { getGuide } from './GuideResolver';
-import { getUser } from './UserResolver';
+import User from '../models/User'
+import Booking from '../models/Booking'
+import { AuthenticationError, UserInputError } from 'apollo-server-errors'
+import Guide from '../models/Guide'
+import Review from '../models/Review'
+import { Fireo } from 'fireo'
+import { DoubleReviewError, NoBookingReviewError } from '../errors/ReviewError'
+import { getGuide } from './GuideResolver'
+import { getUser } from './UserResolver'
 
 const getReview = async ({ reviewId, guideId }) => {
-    let review = await Review.collection.parent(guideId).get({ id: reviewId });
+    let review = await Review.collection.parent(guideId).get({ id: reviewId })
     return {
         id: review.id,
         guideID: review.guide.ref.id,
         touristID: review.tourist.ref.id,
         rating: review.rating,
         description: review.description,
-        created: review.created
-    };
-};
+        created: review.created,
+    }
+}
 
 const ReviewResolver = {
     Review: {
         guide: async (parent) => {
-            return await getGuide(parent.guideID);
+            return await getGuide(parent.guideID)
         },
         tourist: async (parent) => {
-            return await getUser(parent.touristID);
-        }
+            return await getUser(parent.touristID)
+        },
     },
     Mutation: {
         review: async (parent, { input }, context, info) => {
-            if (!context.user) throw new AuthenticationError();
+            if (!context.user) throw new AuthenticationError()
 
-            let { guideID, rating, description } = input;
+            let { guideID, rating, description } = input
 
             let result = await Fireo.runTransaction(async (transaction) => {
-                let guide = await Guide.collection.get({ id: guideID, transaction });
-                let user = await User.collection.get({ id: context.user.uid, transaction });
+                let guide = await Guide.collection.get({
+                    id: guideID,
+                    transaction,
+                })
+                let user = await User.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
 
                 // Users should only be able review guides that they've completed a booking with
                 let booking = await Booking.collection
@@ -46,46 +52,49 @@ const ReviewResolver = {
                     .where('confirmedTourist', '==', true)
                     .where('confirmedGuide', '==', true)
                     .where('endTime', '<', new Date())
-                    .get({ transaction });
+                    .get({ transaction })
 
-                if (!booking) throw new NoBookingReviewError();
+                if (!booking) throw new NoBookingReviewError()
 
                 // Users cannot create more than one booking
                 let existingReview = await Review.collection
                     .parent(guide.key)
                     .where('tourist', '==', user.key)
-                    .get({ transaction });
+                    .get({ transaction })
 
-                if (!existingReview) throw new DoubleReviewError();
+                if (!existingReview) throw new DoubleReviewError()
 
-                if (rating < 1 || rating > 5) throw new UserInputError('Rating must be between 0 and 5 (inclusive).');
+                if (rating < 1 || rating > 5)
+                    throw new UserInputError(
+                        'Rating must be between 0 and 5 (inclusive).',
+                    )
 
-                let review = Review.init({ parent: guide.key });
-                review.guide = guide.key;
-                review.tourist = user.key;
-                review.rating = rating;
-                review.description = description;
-                review.created = new Date();
+                let review = Review.init({ parent: guide.key })
+                review.guide = guide.key
+                review.tourist = user.key
+                review.rating = rating
+                review.description = description
+                review.created = new Date()
 
                 // Update the guides review stats
-                guide.user = (await guide.user.get({ transaction })).key;
-                guide.city = (await guide.city.get({ transaction })).key;
-                guide.ratingTotal += rating;
-                guide.numReviews++;
-                guide.rating = guide.ratingTotal / guide.numReviews;
+                guide.user = (await guide.user.get({ transaction })).key
+                guide.city = (await guide.city.get({ transaction })).key
+                guide.ratingTotal += rating
+                guide.numReviews++
+                guide.rating = guide.ratingTotal / guide.numReviews
 
-                await guide.upsert({ transaction });
-                await review.save({ transaction });
+                await guide.upsert({ transaction })
+                await review.save({ transaction })
 
                 return {
                     reviewId: review.id,
-                    guideId: guide.key
-                };
-            });
+                    guideId: guide.key,
+                }
+            })
 
-            return await getReview(result);
-        }
-    }
-};
+            return await getReview(result)
+        },
+    },
+}
 
-export default ReviewResolver;
+export default ReviewResolver

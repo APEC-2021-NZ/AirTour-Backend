@@ -1,7 +1,7 @@
-const { Model, Field } = require('fireo');
+const { Model, Field } = require('fireo')
 
 class Image extends Model {
-    uri = Field.Text();
+    uri = Field.Text()
 }
 
-export default Image;
+export default Image

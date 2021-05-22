@@ -1,4 +1,4 @@
-import { Experience } from '../models/Guide';
+import { Experience } from '../models/Guide'
 
 const modelToExperience = (experience) => ({
     key: experience.key,
@@ -7,17 +7,17 @@ const modelToExperience = (experience) => ({
     image: {
         uri: experience.image,
     },
-});
+})
 
-const modelsToExperiences = (experiences) => experiences.map(modelToExperience);
+const modelsToExperiences = (experiences) => experiences.map(modelToExperience)
 
 const ExperienceResolver = {
     Query: {
         experiences: async (parent, args, context, info) => {
-            const experiences = (await Experience.collection.fetch()).list;
-            return modelsToExperiences(experiences);
+            const experiences = (await Experience.collection.fetch()).list
+            return modelsToExperiences(experiences)
         },
     },
-};
+}
 
-export default ExperienceResolver;
+export default ExperienceResolver

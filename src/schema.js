@@ -1,11 +1,11 @@
-import { GraphQLScalarType, Kind } from 'graphql';
+import { GraphQLScalarType, Kind } from 'graphql'
 import {
     GraphQLFileLoader,
     loadTypedefsSync,
     mergeResolvers,
-} from 'graphql-tools';
-import path from 'path';
-import { GraphQLUpload } from 'graphql-upload';
+} from 'graphql-tools'
+import path from 'path'
+import { GraphQLUpload } from 'graphql-upload'
 import {
     BookingResolver,
     ConversationResolver,
@@ -17,61 +17,61 @@ import {
     TagResolver,
     UserResolver,
     WishlistResolver,
-} from './resolvers';
+} from './resolvers'
 
 export const typeDefs = loadTypedefsSync(path.join(__dirname, 'schema.gql'), {
     loaders: [new GraphQLFileLoader()],
-}).map((src) => src.document);
+}).map((src) => src.document)
 
 const dateScalar = new GraphQLScalarType({
     name: 'Date',
     serialize(value) {
         if (value instanceof Date) {
-            return value.toISOString();
+            return value.toISOString()
         } else {
             // Assume it's a Timestamp
             // See: https://firebase.google.com/docs/reference/js/firebase.firestore.Timestamp
-            return value.toDate().toISOString();
+            return value.toDate().toISOString()
         }
     },
     parseValue(value) {
-        return new Date(value);
+        return new Date(value)
     },
     parseLiteral(ast) {
         if (ast.kind === Kind.STRING) {
-            return new Date(ast.value);
+            return new Date(ast.value)
         }
-        return null;
+        return null
     },
-});
+})
 
 const dateTimeScalar = new GraphQLScalarType({
     name: 'DateTime',
     serialize(value) {
         if (value instanceof Date) {
-            return value.toISOString();
+            return value.toISOString()
         } else {
             // Assume it's a Timestamp
             // See: https://firebase.google.com/docs/reference/js/firebase.firestore.Timestamp
-            return value.toDate().toISOString();
+            return value.toDate().toISOString()
         }
     },
     parseValue(value) {
-        return new Date(value);
+        return new Date(value)
     },
     parseLiteral(ast) {
         if (ast.kind === Kind.STRING) {
-            return new Date(ast.value);
+            return new Date(ast.value)
         }
-        return null;
+        return null
     },
-});
+})
 
 const customScalars = {
     Date: dateScalar,
     DateTime: dateTimeScalar,
     Upload: GraphQLUpload,
-};
+}
 
 export const resolvers = mergeResolvers([
     customScalars,
@@ -85,4 +85,4 @@ export const resolvers = mergeResolvers([
     TagResolver,
     UserResolver,
     WishlistResolver,
-]);
+])

@@ -1,4 +1,4 @@
-import { Destination } from '../models/Guide';
+import { Destination } from '../models/Guide'
 
 const modelToDestination = (destination) => ({
     key: destination.key,
@@ -7,16 +7,16 @@ const modelToDestination = (destination) => ({
     image: {
         uri: destination.image,
     },
-});
+})
 
 const modelToDestinations = (destinations) =>
-    destinations.map(modelToDestination);
+    destinations.map(modelToDestination)
 
 const DestinationResolver = {
     Query: {
         destinations: async (parent, args, context, info) => {
-            const destinations = (await Destination.collection.fetch()).list;
-            return modelToDestinations(destinations);
+            const destinations = (await Destination.collection.fetch()).list
+            return modelToDestinations(destinations)
         },
         searchDestinations: async (parent, { input }, context, info) => {
             // Search prefix using index name alphabetically
@@ -25,10 +25,10 @@ const DestinationResolver = {
                     .where('name', '>=', input)
                     .where('name', '<=', input + '\uf8ff')
                     .fetch()
-            ).list;
-            return modelToDestinations(destinations);
+            ).list
+            return modelToDestinations(destinations)
         },
     },
-};
+}
 
-export default DestinationResolver;
+export default DestinationResolver
