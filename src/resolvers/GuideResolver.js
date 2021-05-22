@@ -107,6 +107,10 @@ const GuideResolver = {
                     uri: tag.image
                 }
             }));
+        },
+        reviews: async (parent, { limit, offset }) => {
+            // TODO
+            return [];
         }
     },
     City: {
