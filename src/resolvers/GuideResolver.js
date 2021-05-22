@@ -41,19 +41,21 @@ const GuideResolver = {
 
             if (experienceID) {
                 let experience = await Experience.collection.get({ id: experienceID });
-                guides = (await Guide.collection.where('experiences', 'array-contains', [experience.key]).fetch()).list;
+                guides = (await Guide.collection.where('experiences', 'array-contains-any', [experience.key]).fetch())
+                    .list;
                 return modelsToDtos(guides);
             }
 
             if (placeID) {
                 let place = await Destination.collection.get({ id: placeID });
-                guides = (await Guide.collection.where('destinations', 'array-contains', [place.key]).fetch()).list;
+                guides = (await Guide.collection.where('destinations', 'array-contains-any', [place.key]).fetch()).list;
                 return modelsToDtos(guides);
             }
 
             if (tagID) {
-                let tag = await Destination.collection.get({ id: tagID });
-                guides = (await Guide.collection.where('tags', 'array-contains', [tag.key]).fetch()).list;
+                let tag = await Tag.collection.get({ id: tagID });
+                console.log(tag);
+                guides = (await Guide.collection.where('tags', 'array-contains-any', [tag.key]).fetch()).list;
                 return modelsToDtos(guides);
             }
 

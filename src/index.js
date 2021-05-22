@@ -51,6 +51,12 @@ async function loadData() {
     experience.image = 'url';
     await experience.save();
 
+    let experience2 = Experience.init();
+    experience2.id = '2';
+    experience2.name = 'Biking';
+    experience2.image = 'url';
+    await experience2.save();
+
     let destination = Destination.init();
     destination.id = '1';
     destination.name = 'Auckland Zoo';
@@ -58,11 +64,24 @@ async function loadData() {
     destination.city = city.key;
     await destination.save();
 
+    let destination2 = Destination.init();
+    destination2.id = '2';
+    destination2.name = 'Mission Bay';
+    destination2.image = 'url';
+    destination2.city = city2.key;
+    await destination2.save();
+
     let tag = Tag.init();
     tag.id = '1';
     tag.name = 'National Parks';
     tag.image = 'url';
     await tag.save();
+
+    let tag2 = Tag.init();
+    tag2.id = '2';
+    tag2.name = 'Beaches';
+    tag2.image = 'url';
+    await tag2.save();
 }
 
 // See: https://www.apollographql.com/docs/apollo-server/integrations/middleware/#applying-middleware
