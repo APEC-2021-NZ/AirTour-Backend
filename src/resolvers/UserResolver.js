@@ -19,7 +19,7 @@ const getUser = async (id) => {
 const UserResolver = {
     Query: {
         me: async (parent, args, context, info) => {
-            if (!context.user) return;
+            if (!context.user) throw new AuthenticationError();
             return await getUser(context.user.uid);
         }
     },
@@ -38,7 +38,7 @@ const UserResolver = {
     Mutation: {
         createUser: async (parent, { input }, context, info) => {
             // Should probably check to see if the user already exists
-            if (!context.user) return;
+            if (!context.user) throw new AuthenticationError();
             let { firstname, surname, image, dob } = input;
 
             let user = User.init();
@@ -53,7 +53,7 @@ const UserResolver = {
             return await getUser(context.user.uid);
         },
         updateUser: async (parent, { input }, context, info) => {
-            if (!context.user) return;
+            if (!context.user) throw new AuthenticationError();
 
             let { firstname, surname, image, dob } = input;
 

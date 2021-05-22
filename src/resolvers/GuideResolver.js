@@ -1,3 +1,4 @@
+import { AuthenticationError } from 'apollo-server-errors';
 import admin from 'firebase-admin';
 import { saveImage } from '../lib/storage';
 import Guide, { Destination, Experience, Language, Tag } from '../models/Guide';
@@ -34,7 +35,7 @@ const GuideResolver = {
         guides: async (parent, { input }, context, info) => {
             // Anyone can search, but only authenticated users can filter by whether a guide is on their wishlist
             let { experienceID, placeID, tagID, onWishlist } = input;
-            if (onWishlist && !context.user) return;
+            if (onWishlist && !context.user) throw new AuthenticationError();
 
             let guides;
 
@@ -118,7 +119,7 @@ const GuideResolver = {
     },
     Mutation: {
         createGuide: async (parent, { input }, context, info) => {
-            if (!context.user) return;
+            if (!context.user) throw new AuthenticationError();
 
             let {
                 active,
@@ -166,7 +167,7 @@ const GuideResolver = {
             return await getGuide(guide.id);
         },
         updateGuide: async (parent, { input }, context, info) => {
-            if (!context.user) return;
+            if (!context.user) throw new AuthenticationError();
 
             let {
                 active,
