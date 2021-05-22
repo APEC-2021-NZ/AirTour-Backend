@@ -8,8 +8,9 @@ class Guide extends Model {
     city = Field.Reference({ required: true });
     blurb = Field.Text({ required: true });
     description = Field.Text({ required: true });
-    rating = Field.Number({ required: true });
-    numReviews = Field.Number({ required: true });
+    ratingTotal = Field.Number({ required: true, default: 0 });
+    rating = Field.Number({ required: true, default: 5 });
+    numReviews = Field.Number({ required: true, default: 0 });
     price = Field.Text({ required: true });
     languages = Field.List({ required: true });
     experiences = Field.List({ required: true });

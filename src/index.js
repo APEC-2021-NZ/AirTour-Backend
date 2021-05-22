@@ -94,6 +94,7 @@ async function startApolloServer() {
         // mockEntireSchema: false,
         // See: https://www.apollographql.com/docs/apollo-server/data/file-uploads/#uploads-in-node-14-and-later
         uploads: false,
+        debug: process.env.DEBUG.toLowerCase() === 'true',
         context: auth()
     });
     await server.start();

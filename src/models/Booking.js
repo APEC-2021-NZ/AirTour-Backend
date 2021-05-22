@@ -12,4 +12,4 @@ class Booking extends Model {
     created = Field.DateTime({ required: true });
 }
 
-export default User;
+export default Booking;

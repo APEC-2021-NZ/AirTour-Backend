@@ -3,9 +3,11 @@ import admin from 'firebase-admin';
 import { saveImage } from '../lib/storage';
 import Guide, { Destination, Experience, Language, Tag } from '../models/Guide';
 import { City } from '../models/Location';
+import Review from '../models/Review';
 import User from '../models/User';
 
 const modelToDto = (guide) => ({
+    key: guide.key,
     id: guide.id,
     active: guide.active,
     blurb: guide.blurb,
@@ -17,7 +19,8 @@ const modelToDto = (guide) => ({
     languages: guide.languages,
     experiences: guide.experiences,
     destinations: guide.destinations,
-    tags: guide.tags
+    tags: guide.tags,
+    image: guide.image
 });
 
 const modelsToDtos = (guides) => guides.map(modelToDto);
@@ -72,6 +75,11 @@ const GuideResolver = {
         }
     },
     Guide: {
+        image: async (parent) => {
+            return {
+                uri: parent.image
+            };
+        },
         city: async (parent) => {
             return await parent.city.get();
         },
@@ -108,9 +116,14 @@ const GuideResolver = {
                 }
             }));
         },
-        reviews: async (parent, { limit, offset }) => {
-            // TODO
-            return [];
+        reviews: async (parent, { limit = 10, offset = 0 }) => {
+            console.log(parent);
+            let reviews = await Review.collection
+                .parent(parent.key)
+                .orderBy('-created')
+                .fetch(offset + limit);
+            console.log(reviews);
+            return reviews.list.slice(offset);
         }
     },
     City: {
