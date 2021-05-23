@@ -9,7 +9,7 @@ const WishlistResolver = {
         addToWishlist: async (parent, { guideID }, context, info) => {
             if (!context.user) throw new AuthenticationError()
 
-            let guideID = await Fireo.runTransaction(async (transaction) => {
+            await Fireo.runTransaction(async (transaction) => {
                 let user = await User.collection.get({
                     id: context.user.uid,
                     transaction,
@@ -29,11 +29,9 @@ const WishlistResolver = {
                 user.guide = user.guide.ref
 
                 await user.upsert({ transaction })
-
-                return guide.id
             })
 
-            return getGuide(guide.id)
+            return getGuide(guideID)
         },
     },
 }
