@@ -1,4 +1,5 @@
 import { AuthenticationError } from 'apollo-server-errors'
+import { Fireo } from 'fireo'
 import { saveImage } from '../lib/storage'
 import { Conversation } from '../models/Conversation'
 import User from '../models/User'
@@ -64,14 +65,19 @@ const UserResolver = {
 
             let { firstname, surname, image, dob } = input
 
-            let user = await User.collection.get({ id: context.user.uid })
-            user.firstname = firstname ? firstname : user.firstname
-            user.surname = surname ? surname : user.surname
-            user.dob = dob ? dob : user.dob.toDate()
-            user.guide = user.guide.ref
-            user.image = image ? await saveImage(image) : user.image
+            await Fireo.runTransaction(async (transaction) => {
+                let user = await User.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
+                user.firstname = firstname ? firstname : user.firstname
+                user.surname = surname ? surname : user.surname
+                user.dob = dob ? dob : user.dob.toDate()
+                user.guide = user.guide.ref
+                user.image = image ? await saveImage(image) : user.image
 
-            await user.upsert()
+                await user.upsert({ transaction })
+            })
 
             return await getUser(context.user.uid)
         },
