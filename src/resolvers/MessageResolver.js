@@ -1,3 +1,5 @@
+import { AuthenticationError } from 'apollo-server-errors'
+import { sendMessage } from '../lib/messaging'
 import { getBooking } from './BookingResolver'
 import { getUser } from './UserResolver'
 
@@ -12,7 +14,17 @@ const MessageResolver = {
     },
     Mutation: {
         message: async (parent, { input }, context, info) => {
-            // TODO
+            if (!context.user) throw new AuthenticationError()
+
+            let { conversationID, content } = input
+
+            let message = await sendMessage({
+                userID: context.user.uid,
+                conversationID,
+                content,
+            })
+
+            return message
         },
     },
 }
