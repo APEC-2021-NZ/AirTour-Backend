@@ -4,9 +4,6 @@ const modelToLanguage = (language) => ({
     key: language.key,
     id: language.id,
     name: language.name,
-    image: {
-        uri: language.image,
-    },
 })
 
 const modelsToLanguages = (languages) => languages.map(modelToLanguage)

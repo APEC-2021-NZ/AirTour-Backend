@@ -18,6 +18,8 @@ import {
     UserResolver,
     WishlistResolver,
     LanguageResolver,
+    CityResolver,
+    CountryResolver,
 } from './resolvers'
 
 export const typeDefs = loadTypedefsSync(path.join(__dirname, 'schema.gql'), {
@@ -87,4 +89,6 @@ export const resolvers = mergeResolvers([
     UserResolver,
     WishlistResolver,
     LanguageResolver,
+    CityResolver,
+    CountryResolver,
 ])
