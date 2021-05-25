@@ -27,6 +27,8 @@ const WishlistResolver = {
 
                 user.dob = user.dob.toDate()
                 user.guide = user.guide.ref
+                    ? (await user.guide.get()).key
+                    : undefined
 
                 await user.upsert({ transaction })
             })
