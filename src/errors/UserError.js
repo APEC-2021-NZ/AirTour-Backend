@@ -9,7 +9,7 @@ class UserError extends ApolloError {
 class EmailTakenError extends UserError {
     constructor() {
         super(
-            'That email address has already been registered with another account.',
+            'That email address is already associated with another account.',
             'EMAIL_TAKEN_ERROR',
         )
     }
@@ -30,5 +30,32 @@ class InsecurePasswordError extends UserError {
     }
 }
 
-export { EmailTakenError, InvalidEmailError, InsecurePasswordError }
+class InvalidFirstNameError extends UserError {
+    constructor() {
+        super('A non-empty firstname is required.', 'INVALID_FIRSTNAME_ERROR')
+    }
+}
+
+class InvalidSurnameError extends UserError {
+    constructor() {
+        super('A non-empty surname is required.', 'INVALID_SURNAME_ERROR')
+    }
+}
+
+class UnderageError extends UserError {
+    constructor() {
+        super(
+            'You must be at least 18 years old to register.',
+            'UNDERAGE_ERROR',
+        )
+    }
+}
+export {
+    EmailTakenError,
+    InvalidEmailError,
+    InsecurePasswordError,
+    InvalidFirstNameError,
+    InvalidSurnameError,
+    UnderageError,
+}
 export default UserError

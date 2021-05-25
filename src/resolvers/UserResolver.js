@@ -1,10 +1,14 @@
 import { AuthenticationError } from 'apollo-server-errors'
 import admin from 'firebase-admin'
 import { Fireo } from 'fireo'
+import moment from 'moment'
 import {
     EmailTakenError,
-    InsecurePasswordError,
     InvalidEmailError,
+    InsecurePasswordError,
+    InvalidFirstNameError,
+    InvalidSurnameError,
+    UnderageError,
 } from '../errors/UserError'
 import { saveImage } from '../lib/storage'
 import User from '../models/User'
@@ -52,6 +56,20 @@ const UserResolver = {
         createUser: async (parent, { input }, context, info) => {
             // Should probably check to see if the user already exists
             let { email, password, firstname, surname, image, dob } = input
+
+            if (!firstname) {
+                throw new InvalidFirstNameError()
+            }
+
+            if (!surname) {
+                throw new InvalidSurnameError()
+            }
+
+            const eighteenYearsAgo = moment().subtract(18, 'years').toDate()
+
+            if (new Date(dob) > eighteenYearsAgo) {
+                throw new UnderageError()
+            }
 
             let userRecord = null
 
