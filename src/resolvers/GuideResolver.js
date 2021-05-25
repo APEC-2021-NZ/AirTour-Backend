@@ -175,6 +175,16 @@ const GuideResolver = {
         user: async (parent) => {
             return await getUser(parent.userID)
         },
+        recommendations: async (parent) => {
+            let city = await City.collection.get({ id: parent.cityID })
+            const guides = (
+                await Guide.collection
+                    .where('city', '==', city.key)
+                    .limit(2)
+                    .fetch()
+            ).list
+            return modelsToDtos(guides)
+        },
     },
     City: {
         country: async (parent) => {

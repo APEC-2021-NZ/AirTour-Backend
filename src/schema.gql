@@ -30,6 +30,7 @@ type Guide {
     experiences: [Experience!]!
     destinations: [Destination!]!
     tags: [Tag!]!
+    recommendations: [Guide!]!
 }
 
 type Language {
