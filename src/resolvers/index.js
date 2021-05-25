@@ -8,6 +8,7 @@ import ReviewResolver from './ReviewResolver'
 import TagResolver from './TagResolver'
 import UserResolver from './UserResolver'
 import WishlistResolver from './WishlistResolver'
+import LanguageResolver from './LanguageResolver'
 
 export {
     BookingResolver,
@@ -20,4 +21,5 @@ export {
     TagResolver,
     UserResolver,
     WishlistResolver,
+    LanguageResolver,
 }

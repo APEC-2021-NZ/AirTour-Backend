@@ -231,4 +231,5 @@ type Query {
     tags: [Tag!]!
     destinations: [Destination!]!
     experiences: [Experience!]!
+    languages: [Language!]!
 }
