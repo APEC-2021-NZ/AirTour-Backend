@@ -1,6 +1,16 @@
 import { AuthenticationError } from 'apollo-server-errors'
+import admin from 'firebase-admin'
+import { Fireo } from 'fireo'
+import moment from 'moment'
+import {
+    EmailTakenError,
+    InvalidEmailError,
+    InsecurePasswordError,
+    InvalidFirstNameError,
+    InvalidSurnameError,
+    UnderageError,
+} from '../errors/UserError'
 import { saveImage } from '../lib/storage'
-import { Conversation } from '../models/Conversation'
 import User from '../models/User'
 import { getConversation } from './ConversationResolver'
 import { getGuide } from './GuideResolver'
@@ -33,7 +43,7 @@ const UserResolver = {
             }
         },
         guide: async (parent) => {
-            return await getGuide(parent.guideID)
+            return parent.guideID ? await getGuide(parent.guideID) : null
         },
         conversations: async (parent) => {
             let conversations = await Promise.all(
@@ -45,33 +55,74 @@ const UserResolver = {
     Mutation: {
         createUser: async (parent, { input }, context, info) => {
             // Should probably check to see if the user already exists
-            if (!context.user) throw new AuthenticationError()
-            let { firstname, surname, image, dob } = input
+            let { email, password, firstname, surname, image, dob } = input
+
+            if (!firstname) {
+                throw new InvalidFirstNameError()
+            }
+
+            if (!surname) {
+                throw new InvalidSurnameError()
+            }
+
+            const eighteenYearsAgo = moment().subtract(18, 'years').toDate()
+
+            if (new Date(dob) > eighteenYearsAgo) {
+                throw new UnderageError()
+            }
+
+            let userRecord = null
+
+            try {
+                userRecord = await admin.auth().createUser({
+                    email,
+                    password,
+                })
+            } catch (e) {
+                switch (e.code) {
+                    case 'auth/email-already-exists':
+                        throw new EmailTakenError()
+                    case 'auth/invalid-email':
+                        throw new InvalidEmailError()
+                    case 'auth/invalid-password':
+                        throw new InsecurePasswordError()
+                }
+                throw e
+            }
 
             let user = User.init()
-            user.id = context.user.uid
+            user.id = userRecord.uid
             user.firstname = firstname
             user.surname = surname
-            user.image = await saveImage(image)
+            user.image = image
+                ? await saveImage(image)
+                : 'https://www.gravatar.com/avatar?d=mp'
             user.dob = dob
+            user.wishlist = []
+            user.conversations = []
 
             await user.save()
 
-            return await getUser(context.user.uid)
+            return await getUser(userRecord.uid)
         },
         updateUser: async (parent, { input }, context, info) => {
             if (!context.user) throw new AuthenticationError()
 
             let { firstname, surname, image, dob } = input
 
-            let user = await User.collection.get({ id: context.user.uid })
-            user.firstname = firstname ? firstname : user.firstname
-            user.surname = surname ? surname : user.surname
-            user.dob = dob ? dob : user.dob.toDate()
-            user.guide = user.guide.ref
-            user.image = image ? await saveImage(image) : user.image
+            await Fireo.runTransaction(async (transaction) => {
+                let user = await User.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
+                user.firstname = firstname ? firstname : user.firstname
+                user.surname = surname ? surname : user.surname
+                user.dob = dob ? dob : user.dob.toDate()
+                user.guide = user.guide.ref
+                user.image = image ? await saveImage(image) : user.image
 
-            await user.upsert()
+                await user.upsert({ transaction })
+            })
 
             return await getUser(context.user.uid)
         },

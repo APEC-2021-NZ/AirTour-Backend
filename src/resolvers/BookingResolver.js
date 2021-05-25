@@ -2,7 +2,8 @@ import User from '../models/User'
 import admin from 'firebase-admin'
 import Booking from '../models/Booking'
 import { getUser } from './UserResolver'
-import { AuthenticationError } from 'apollo-server-express'
+import { AuthenticationError, ForbiddenError } from 'apollo-server-express'
+import { getGuide } from './GuideResolver'
 
 const getBooking = async (id) => {
     let booking = await Booking.collection.get({ id })
@@ -12,6 +13,7 @@ const getBooking = async (id) => {
 const modelToBooking = (booking) => {
     return {
         id: booking.id,
+        touristID: booking.tourist.ref.id,
         guideID: booking.guide.ref.id,
         startTime: booking.startTime,
         endTime: booking.endTime,
@@ -26,6 +28,14 @@ const modelToBooking = (booking) => {
 const modelsToBookings = (bookings) => bookings.map(modelToBooking)
 
 const BookingResolver = {
+    Booking: {
+        tourist: async (parent) => {
+            return await getUser(parent.touristID)
+        },
+        guide: async (parent) => {
+            return await getGuide(parent.guideID)
+        },
+    },
     Query: {
         booking: async (parent, { bookingID }, context, info) => {
             if (!context.user) throw new AuthenticationError()
@@ -70,8 +80,11 @@ const BookingResolver = {
                 price,
             } = input
 
-            if (touristID != context.user.uid && guideID != context.user.uid) {
-                throw new AuthenticationError()
+            if (
+                touristID !== context.user.uid &&
+                guideID !== context.user.uid
+            ) {
+                throw new ForbiddenError()
             }
 
             const tourist = await getUser(touristID)
@@ -112,7 +125,7 @@ const BookingResolver = {
                 booking.tourist.ref.id != context.user.uid &&
                 booking.guide.ref.id != context.user.uid
             ) {
-                throw new AuthenticationError()
+                throw new ForbiddenError()
             }
 
             booking.startTime = startTime
@@ -144,7 +157,7 @@ const BookingResolver = {
             } else if (booking.guide.ref.id == context.user.uid) {
                 booking.confirmedGuide ? accept : booking.confirmedGuide
             } else {
-                throw new AuthenticationError()
+                throw new ForbiddenError()
             }
 
             await booking.upsert()

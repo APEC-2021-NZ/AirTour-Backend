@@ -1,5 +1,6 @@
 import { AuthenticationError } from 'apollo-server-errors'
 import admin from 'firebase-admin'
+import { Fireo } from 'fireo'
 import { saveImage } from '../lib/storage'
 import Guide, { Destination, Experience, Language, Tag } from '../models/Guide'
 import { City, Country } from '../models/Location'
@@ -253,59 +254,78 @@ const GuideResolver = {
                 tagIDs,
             } = input
 
-            let user = await User.collection.get({ id: context.user.uid })
-            let guide = await Guide.collection.get({ id: context.user.uid })
-            guide.user = user.key
-            guide.active = active ? active : guide.active
-            guide.image = image ? await saveImage(image) : guide.image
-            guide.blurb = blurb ? blurb : guide.blurb
-            guide.description = description ? description : guide.description
-            guide.price = price ? price : guide.price
+            let guideID = await Fireo.runTransaction(async (transaction) => {
+                let user = await User.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
+                let guide = await Guide.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
+                guide.user = user.key
+                guide.active = active ? active : guide.active
+                guide.image = image ? await saveImage(image) : guide.image
+                guide.blurb = blurb ? blurb : guide.blurb
+                guide.description = description
+                    ? description
+                    : guide.description
+                guide.price = price ? price : guide.price
 
-            if (cityID) {
-                let city = await City.collection.get({ id: cityID })
-                guide.city = city.key
-            }
+                if (cityID) {
+                    let city = await City.collection.get({
+                        id: cityID,
+                        transaction,
+                    })
+                    guide.city = city.key
+                }
 
-            if (languageIDs) {
-                let languages = await Promise.all(
-                    languageIDs.map((id) => Language.collection.get({ id })),
-                )
-                let languageKeys = languages.map((lang) => lang.key)
-                guide.languages = languageKeys
-            }
+                if (languageIDs) {
+                    let languages = await Promise.all(
+                        languageIDs.map((id) =>
+                            Language.collection.get({ id, transaction }),
+                        ),
+                    )
+                    let languageKeys = languages.map((lang) => lang.key)
+                    guide.languages = languageKeys
+                }
 
-            if (experienceIDs) {
-                let experiences = await Promise.all(
-                    experienceIDs.map((id) =>
-                        Experience.collection.get({ id }),
-                    ),
-                )
-                let experienceKeys = experiences.map((exp) => exp.key)
-                guide.experiences = experienceKeys
-            }
+                if (experienceIDs) {
+                    let experiences = await Promise.all(
+                        experienceIDs.map((id) =>
+                            Experience.collection.get({ id, transaction }),
+                        ),
+                    )
+                    let experienceKeys = experiences.map((exp) => exp.key)
+                    guide.experiences = experienceKeys
+                }
 
-            if (destinationIDs) {
-                let destinations = await Promise.all(
-                    destinationIDs.map((id) =>
-                        Destination.collection.get({ id }),
-                    ),
-                )
-                let destinationKeys = destinations.map((dest) => dest.key)
-                guide.destinations = destinationKeys
-            }
+                if (destinationIDs) {
+                    let destinations = await Promise.all(
+                        destinationIDs.map((id) =>
+                            Destination.collection.get({ id, transaction }),
+                        ),
+                    )
+                    let destinationKeys = destinations.map((dest) => dest.key)
+                    guide.destinations = destinationKeys
+                }
 
-            if (tagIDs) {
-                let tags = await Promise.all(
-                    tagIDs.map((id) => Tag.collection.get({ id })),
-                )
-                let tagKeys = tags.map((tag) => tag.key)
-                guide.tags = tagKeys
-            }
+                if (tagIDs) {
+                    let tags = await Promise.all(
+                        tagIDs.map((id) =>
+                            Tag.collection.get({ id, transaction }),
+                        ),
+                    )
+                    let tagKeys = tags.map((tag) => tag.key)
+                    guide.tags = tagKeys
+                }
 
-            await guide.upsert()
+                await guide.upsert({ transaction })
 
-            return await getGuide(guide.id)
+                return guide.id
+            })
+
+            return await getGuide(guideID)
         },
     },
 }

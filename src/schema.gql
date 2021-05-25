@@ -117,6 +117,8 @@ input GuidesInput {
 }
 
 input CreateUserInput {
+    email: String!
+    password: String!
     firstname: String!
     surname: String!
     image: Upload
