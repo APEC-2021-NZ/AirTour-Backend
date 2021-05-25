@@ -8,7 +8,7 @@ const modelToCity = (city) => ({
     countryID: city.country.ref.id,
 })
 
-const modelsToCitys = (citys) => citys.map(modelToCity)
+const modelsToCities = (cities) => cities.map(modelToCity)
 
 const CityResolver = {
     City: {
@@ -17,12 +17,12 @@ const CityResolver = {
         },
     },
     Query: {
-        citys: async (parent, args, context, info) => {
-            const citys = (await City.collection.fetch()).list
-            return modelsToCitys(citys)
+        cities: async (parent, args, context, info) => {
+            const cities = (await City.collection.fetch()).list
+            return modelsToCities(cities)
         },
     },
 }
 
-export { modelToCity, modelsToCitys }
+export { modelToCity, modelsToCities }
 export default CityResolver

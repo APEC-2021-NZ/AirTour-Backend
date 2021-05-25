@@ -234,4 +234,7 @@ type Query {
     destinations: [Destination!]!
     experiences: [Experience!]!
     languages: [Language!]!
+
+    cities: [City!]!
+    countries: [Country!]!
 }

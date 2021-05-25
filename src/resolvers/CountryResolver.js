@@ -6,13 +6,13 @@ const modelToCountry = (country) => ({
     name: country.name,
 })
 
-const modelsToCountrys = (countrys) => countrys.map(modelToCountry)
+const modelsToCountrys = (countries) => countries.map(modelToCountry)
 
 const CountryResolver = {
     Query: {
-        countrys: async (parent, args, context, info) => {
-            const countrys = (await Country.collection.fetch()).list
-            return modelsToCountrys(countrys)
+        countries: async (parent, args, context, info) => {
+            const countries = (await Country.collection.fetch()).list
+            return modelsToCountrys(countries)
         },
     },
 }
