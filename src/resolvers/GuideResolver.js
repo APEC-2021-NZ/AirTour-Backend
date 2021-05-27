@@ -108,7 +108,6 @@ const GuideResolver = {
 
             if (tagID) {
                 let tag = await Tag.collection.get({ id: tagID })
-                console.log(tag)
                 guides = (
                     await Guide.collection
                         .where('tags', 'array-contains-any', [tag.key])
@@ -118,7 +117,6 @@ const GuideResolver = {
             }
 
             if (onWishlist) {
-                // TODO: test me
                 let user = await User.collection.get({ id: context.user.uid })
                 if (user.wishlist) {
                     guides = await Promise.all(
@@ -128,7 +126,9 @@ const GuideResolver = {
                 }
                 return []
             }
-            throw Error('Exactly one filtering option must be specified')
+
+            guides = (await Guide.collection.fetch()).list
+            return modelsToDtos(guides)
         },
     },
     Guide: {
