@@ -35,6 +35,36 @@ const WishlistResolver = {
 
             return getGuide(guideID)
         },
+        removeFromWishlist: async (parent, { guideID }, context, info) => {
+            if (!context.user) throw new AuthenticationError()
+
+            await Fireo.runTransaction(async (transaction) => {
+                let user = await User.collection.get({
+                    id: context.user.uid,
+                    transaction,
+                })
+                let guide = await Guide.collection.get({
+                    id: guideID,
+                    transaction,
+                })
+
+                if (user.wishlist.includes(guide.id)) {
+                    let idx = user.wishlist.indexOf(guide.id)
+                    user.wishlist = user.wishlist.filter(
+                        (id) => id !== guide.id,
+                    )
+                }
+
+                user.dob = user.dob.toDate()
+                user.guide = user.guide.ref
+                    ? (await user.guide.get()).key
+                    : undefined
+
+                await user.upsert({ transaction })
+            })
+
+            return getGuide(guideID)
+        },
     },
 }
 

@@ -207,6 +207,7 @@ type Mutation {
     updateUser(input: UpdateUserInput!): User!
 
     addToWishlist(guideID: ID!): Guide!
+    removeFromWishlist(guideID: ID!): Guide!
 
     message(input: MessageInput!): Message!
 
