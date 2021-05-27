@@ -174,7 +174,7 @@ input CreateConversationInput {
 
 input CreateGuideInput {
     active: Boolean!
-    image: Upload!
+    image: Upload
     cityID: ID!
     blurb: String!
     description: String!

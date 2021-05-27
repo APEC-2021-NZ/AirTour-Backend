@@ -228,11 +228,14 @@ const GuideResolver = {
             let tagKeys = tags.map((tag) => tag.key)
 
             let user = await User.collection.get({ id: context.user.uid })
+
             let guide = Guide.init()
             guide.id = context.user.uid
             guide.user = user.key
             guide.active = active
-            guide.image = await saveImage(image)
+            guide.image = image
+                ? await saveImage(image)
+                : 'https://www.gravatar.com/avatar?d=mp'
             guide.city = city.key
             guide.blurb = blurb
             guide.description = description
@@ -245,6 +248,12 @@ const GuideResolver = {
             guide.tags = tagKeys
 
             await guide.save()
+
+            user.dob = user.dob.toDate()
+            user.guide = user.guide.ref
+            user.guide = guide.key
+
+            await user.save()
 
             return await getGuide(guide.id)
         },

@@ -43,7 +43,7 @@ const generateBookingMessage = (startDate, endDate, numTourists, content) => {
 const ConversationResolver = {
     Query: {
         conversation: async (parent, { conversationID }, context, info) => {
-            if (!context.user) throw AuthenticationError()
+            if (!context.user) throw new AuthenticationError()
             let conversation = await getConversation(conversationID)
 
             if (
