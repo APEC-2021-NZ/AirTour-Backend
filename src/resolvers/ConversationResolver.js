@@ -84,6 +84,11 @@ const ConversationResolver = {
                         transaction,
                     })
 
+                    let guideUser = await User.collection.get({
+                        id: guide.id,
+                        transaction,
+                    })
+
                     // Check if a conversation already exists between these users
                     let existingConversation = await Conversation.collection
                         .where('user', '==', user.key)
@@ -130,11 +135,6 @@ const ConversationResolver = {
                         ]
                     }
 
-                    let guideUser = await User.collection.get({
-                        guide: guide.key,
-                        transaction,
-                    })
-
                     if (!guideUser.conversations) {
                         guideUser.conversations = [conversation.id]
                     } else {
@@ -146,6 +146,8 @@ const ConversationResolver = {
 
                     guideUser.dob = guideUser.dob.toDate()
                     guideUser.guide = guideUser.guide.ref
+                        ? (await guideUser.guide.get()).key
+                        : undefined
 
                     await guideUser.upsert({ transaction })
 
