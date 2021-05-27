@@ -6,7 +6,7 @@ import { Conversation, Message } from '../models/Conversation'
 import Guide from '../models/Guide'
 import User from '../models/User'
 import { getBooking } from './BookingResolver'
-import { getGuide } from './GuideResolver'
+import GuideResolver, { getGuide } from './GuideResolver'
 import { getUser } from './UserResolver'
 
 export const getConversation = async (id) => {
@@ -123,15 +123,34 @@ const ConversationResolver = {
 
                     if (!user.conversations) {
                         user.conversations = [conversation.id]
-                    } else if (!user.conversations.includes(guide.id)) {
+                    } else {
                         user.conversations = [
                             ...user.conversations,
                             conversation.id,
                         ]
                     }
 
+                    let guideUser = await User.collection.get({
+                        guide: guide.key,
+                        transaction,
+                    })
+
+                    if (!guideUser.conversations) {
+                        guideUser.conversations = [conversation.id]
+                    } else {
+                        guideUser.conversations = [
+                            ...guideUser.conversations,
+                            conversation.id,
+                        ]
+                    }
+
+                    guideUser.dob = guideUser.dob.toDate()
+                    guideUser.guide = guideUser.guide.ref
+
+                    await guideUser.upsert({ transaction })
+
                     user.dob = user.dob.toDate()
-                    user.guide = user.guide.red
+                    user.guide = user.guide.ref
 
                     await user.upsert({ transaction })
 
