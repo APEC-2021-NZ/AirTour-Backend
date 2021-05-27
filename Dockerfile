@@ -13,10 +13,10 @@ COPY package*.json ./
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
-RUN npm install
+RUN npm install --only=production
 
 # Copy local code to the container image.
 COPY . ./
 
 # Run the web service on container startup.
-CMD [ "node", "-r", "esm" "src/index.js" ]
+CMD [ "npm", "start" ]
